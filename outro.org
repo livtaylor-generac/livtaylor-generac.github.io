@@ -1,0 +1,16 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+#+OPTIONS: toc:nil
+#+title: Outro and Questions
+
+* Q&A
+
+* Resources
+- OpenAI API docs: https://platform.openai.com
+- Langchain docs for RAG: https://python.langchain.com/docs/tutorials/
+- AWS RAG overview: https://aws.amazon.com/what-is/retrieval-augmented-generation/
+- Google AI Example: https://theconversation.com/eat-a-rock-a-day-put-glue-on-your-pizza-how-googles-ai-is-losing-touch-with-reality-230953
+- OpenAI prompting guide: https://platform.openai.com/docs/guides/prompt-engineering
+- General prompting guide: https://learnprompting.org/
+- Emacs config framework I use: https://github.com/doomemacs/doomemacs
+- Emacs plugins I use: https://github.com/karthink/gptel, https://github.com/karthink/gptel-quick, https://github.com/lanceberge/elysium
+- Langchain text splitter useful for RAG on codebases: https://api.python.langchain.com/en/latest/character/langchain_text_splitters.character.RecursiveCharacterTextSplitter.html#langchain_text_splitters.character.RecursiveCharacterTextSplitter.from_language

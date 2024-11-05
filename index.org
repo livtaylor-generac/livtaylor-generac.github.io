@@ -1,0 +1,9 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+#+OPTIONS: toc:nil
+#+title: LLM Lunch and Learn: Enhancing Developer Productivity with Advanced LLM Usage
+
+#+ATTR_HTML: :width 800px :style background-color:#333333
+[[./resources/generac-logo.png]]
+* [[./llm-intro.org][Intro]]
+* [[./demos.org][Demos]]
+* [[./outro.org][Outro and Questions]]

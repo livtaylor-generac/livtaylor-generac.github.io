@@ -1,0 +1,63 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+#+OPTIONS: toc:nil
+#+title: LLM Intro
+* About Me
+BS in Computer Science focused on distributed computing with some data mining and machine learning classes.
+
+I like to play around with LLMs for fun and profit.
+
+I use Emacs for the majority of my coding here, so I'll be using it for this talk.
+
+* What can we do with LLMs?
+There's a learning curve to figuring out what these are good with.
+
+For example, writing poetry with rhymes is difficult for humans to do quickly, but trivial for an LLM.
+(see first demo: [[./demos.org::*Demo 1: Generating Code]])
+
+LLMs rely on parsing text into "tokens" that might split words into subwords or punctuation into separate sections.
+In neural networks, these tokens are treated as numbers to predict future tokens.
+Given enough layers in a neural network, the predictions can start to "reason" about questions.
+
+Common tasks LLMs tend to be good at:
+- Paraphrasing
+- Translating human languages or code
+- Summarizing (up to a certain length)
+- Finding details, like error messages in a log trace
+- Sentiment classification (like asking if an email comes off as rude)
+
+* What can we not do?
+One of the most important limitations current LLMs face is the context window.  A context window defines how many tokens can be used for input at one time.  We have a few techniques for breaking the context window, and currently the most popular one is Retrieval Augmented Generation (RAG).  (Generally the other major technique is fine-tuning).
+
+Sometimes simple logic questions like "I have two apples and
+show my friend one apple.  How many apples do I have?" can stump them.  When that kind of thing happens, it can be helpful to ask the model to translate the text into a math equation and solve the math equation.
+
+Hallucinations are another major problems we face with AI.  Because training LLMs rewards creativity and confidence, they can confidently state entirely incorrect facts.  See this google search answer:
+
+#+ATTR_HTML: :width 400px
+[[./resources/can-i-eat-rocks.png]]
+
+* Pair programming?
+There's plenty of marketing hype in the current LLM field for smarter models that require less hand-holding.  Ultimately for what we do with software engineering, there's going to be significant hand-holding for using AI in development for the foreseeable future.  Requirements gathering, understanding features, and maintainable code still pale in comparison to entry-level human developers.
+
+* What is RAG?
+
+#+NAME: rag-diagram
+#+ATTR_HTML: :width 800px
+[[./resources/jumpstart-fm-rag.jpg]]
+
+RAG can be broken down into many different implementations, but the most common is semantic search.  Semantic search uses embeddings as an index for a vector database search that feeds sections of text into the LLM.
+
+An embedding is a numerical representation of a text, where a string like "The cat crossed the road" might output a numerical vector like ~[1,2,3,4]~.  Another string like "The dog walked over the street" might output a similar but not identical vector like ~[1,2,3,3]~.  By searching for vectors near each other in higher-dimensional space, we can search within bodies of text larger than the context window near ~O(log n)~ time.
+
+* What models and services can we use with proprietary data?
+
+Have to read each license agreement to check for whether they use input as training data.
+Warning: Copy-pasting proprietary company data into ChatGPT can feed back into training!
+
+** Local Open-Source Models
+Open source models can run locally to fully control the data used.
+
+Examples:
+- llama
+- deepseek coder
+- mixtral

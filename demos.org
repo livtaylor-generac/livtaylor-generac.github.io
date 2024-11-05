@@ -1,0 +1,169 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+#+OPTIONS: toc:nil
+#+title: Demos
+* Setup
+*** Set the OpenAI API Key
+
+#+BEGIN_SRC emacs-lisp
+(and
+ (setenv "OPENAI_API_KEY"
+         (let ((found-password
+                (shell-command-to-string "security find-internet-password -s api.openai.com -a apikey -w")))
+           (substring found-password 0 -1)))
+ "OK")
+#+END_SRC
+
+#+RESULTS:
+: OK
+
+*** Set the python to use our venv if the openai module is not installed globally
+#+BEGIN_SRC emacs-lisp
+(and (setq org-babel-python-command "~/code/llm-demo/bin/python3") "OK")
+#+END_SRC
+
+#+RESULTS:
+: OK
+
+*** Set the openai model to use for the demos
+Model:
+#+NAME: openai-model
+gpt-4o
+
+* Demo 1: Generating Code
+** Prompt
+#+NAME: demo-1-prompt
+Write a haiku about AC generators.
+
+** Code
+#+NAME: First Prompt
+#+HEADER: :var prompt=demo-1-prompt :var openai_model=openai-model
+#+BEGIN_SRC python :exports both :results output code :tangle ./src/demo-1.py
+from openai import OpenAI;
+import json
+print("prompt:", str(prompt))
+client = OpenAI()
+completion = client.chat.completions.create(
+    model=openai_model.strip(),
+    messages=[
+        {"role": "user", "content": prompt}
+    ]
+)
+
+print(completion)
+print()
+print("First Answer: ", completion.choices[0].message.content)
+#+END_SRC
+
+** Output:
+#+RESULTS: First Prompt
+#+begin_src python
+prompt: Write a haiku about AC generators.
+
+ChatCompletion(id='chatcmpl-AQKqwEb0s6h4IseKYLakRGovMJC8S', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content="Copper coils spin 'round,  \nMagnetic fields birth power—  \nElectric life hums.", refusal=None, role='assistant', audio=None, function_call=None, tool_calls=None))], created=1730840050, model='gpt-4o-2024-08-06', object='chat.completion', service_tier=None, system_fingerprint='fp_45cf54deae', usage=CompletionUsage(completion_tokens=19, prompt_tokens=15, total_tokens=34, completion_tokens_details=CompletionTokensDetails(audio_tokens=None, reasoning_tokens=0, accepted_prediction_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=None, cached_tokens=0)))
+
+First Answer:  Copper coils spin 'round,
+Magnetic fields birth power—
+Electric life hums.
+#+end_src
+
+* Demo 2: Error and Vulnerability Code Analysis
+Prompts might look like this:
+- "Explain the compiler error in the following code."
+- "Use the following log output to diagnose the spring-boot runtime exception."
+- "What possible security flaws could arise from the following code block?"
+
+** Input
+#+NAME: log-output
+#+BEGIN_EXAMPLE
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 332 source files with javac [debug release 17] to target/classes
+[WARNING] /src/main/java/com/neurio/site/dto/v3/KpiResultV3.java:[21,17] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /src/main/java/com/neurio/site/dto/v3/KpiResultV3.java:[22,17] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /src/main/java/com/neurio/site/dto/v3/KpiResultV3.java:[23,17] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /src/main/java/com/neurio/site/entity/FleetSiteMapWithSiteName.java:[17,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /src/main/java/com/neurio/site/entity/Address.java:[18,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /src/main/java/com/neurio/site/entity/Audit.java:[16,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /src/main/java/com/neurio/site/entity/Site.java:[32,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+[WARNING] /src/main/java/com/neurio/site/dto/registration/RegisterSiteDtoV2.java:[23,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+#+END_EXAMPLE
+
+** Code
+#+NAME: Log Analysis
+#+HEADER: :var logs=log-output :var openai_model=openai-model
+#+BEGIN_SRC python :exports both :results output markdown :tangle ./src/demo-2.py
+from openai import OpenAI;
+import json
+prompt="List all the warning from this maven log output and explain how to address each one.\n\n```\n"
+prompt+=logs
+prompt+="\n```"
+# print("prompt:", str(prompt))
+client = OpenAI()
+completion = client.chat.completions.create(
+    model=openai_model.strip(),
+    messages=[
+        {"role": "user", "content": prompt}
+    ]
+)
+
+print(completion.choices[0].message.content)
+#+END_SRC
+
+** Output
+#+RESULTS: Log Analysis
+#+begin_example
+The Maven build log contains several warnings, primarily related to the use of Lombok annotations in your Java classes. Here's an explanation of each warning and how you can address them:
+
+1. **Warnings regarding `@Builder` ignoring initializing expressions:**
+
+   - **Warnings:**
+     ```
+     [WARNING] /src/main/java/com/neurio/site/dto/v3/KpiResultV3.java:[21,17] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+     [WARNING] /src/main/java/com/neurio/site/dto/v3/KpiResultV3.java:[22,17] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+     [WARNING] /src/main/java/com/neurio/site/dto/v3/KpiResultV3.java:[23,17] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+     ```
+
+   - **Explanation and Solution:**
+     These warnings indicate that the fields in your `KpiResultV3` class have initializing expressions that are being ignored when using Lombok's `@Builder`. If the initial value should serve as the default during object creation, you should annotate these fields with `@Builder.Default`. If these fields should not be settable during the building process, consider making them `final`.
+
+     Example:
+     ```java
+     @Builder.Default
+     private int someField = 42;
+     ```
+
+2. **Warnings regarding `@EqualsAndHashCode` implementation:**
+
+   - **Warnings:**
+     ```
+     [WARNING] /src/main/java/com/neurio/site/entity/FleetSiteMapWithSiteName.java:[17,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+     [WARNING] /src/main/java/com/neurio/site/entity/Address.java:[18,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+     [WARNING] /src/main/java/com/neurio/site/entity/Audit.java:[16,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+     [WARNING] /src/main/java/com/neurio/site/entity/Site.java:[32,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+     [WARNING] /src/main/java/com/neurio/site/dto/registration/RegisterSiteDtoV2.java:[23,1] Generating equals/hashCode implementation but without a call to superclass, even though this class does not extend java.lang.Object. If this is intentional, add '@EqualsAndHashCode(callSuper=false)' to your type.
+     ```
+
+   - **Explanation and Solution:**
+     These warnings suggest that Lombok is creating `equals` and `hashCode` methods for classes that extend other classes, but it is not calling the superclass implementation of these methods. If this is intended, and you don't want to include the superclass’s `equals` and `hashCode` logic, you should add `@EqualsAndHashCode(callSuper=false)` to your class. If you want to incorporate the superclass methods, change it to `@EqualsAndHashCode(callSuper=true)`.
+
+     Example:
+     ```java
+     @EqualsAndHashCode(callSuper=false)
+     public class FleetSiteMapWithSiteName extends SomeOtherClass {
+         // class content
+     }
+     ```
+
+Address these warnings as recommended to ensure that your classes behave as expected when using Lombok features.
+#+end_example
+
+* Demo 3: Generate java code
+Call ~M-x elysium-query "Address the TODO comments"~ on the region below.
+
+#+BEGIN_SRC java :tangle src/HaversineDistance.java
+public class HaversineDistance {
+    // TODO add main method for CLI
+
+    // TODO compute the distance between two points on a sphere
+}
+#+END_SRC
+
